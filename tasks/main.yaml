@@ -1,0 +1,62 @@
+---
+- name: install development packages
+  apt: pkg={{ item }} state=latest update_cache=yes
+  with_items:
+    - g++
+    - make
+    - binutils
+    - autoconf
+    - automake
+    - autotools-dev
+    - libtool
+    - pkg-config
+    - zlib1g-dev
+    - libcunit1-dev
+    - libssl-dev
+    - libxml2-dev
+    - libev-dev
+    - libevent-dev
+    - libjansson-dev
+    - libjemalloc-dev
+    - cython
+    - python3-dev
+    - python-setuptools
+
+- name: download nghttp2
+  git: repo=https://github.com/tatsuhiro-t/nghttp2.git dest=/tmp/nghttp2
+
+- name: build nghttp2
+  action: command {{ item}} chdir=/tmp/nghttp2
+  become: true
+  with_items:
+    - autoreconf -i
+    - automake
+    - autoconf
+    - ./configure
+    - make
+    - make install
+    - rm -rf ../nghttp2
+
+- name: install build dependencies packages
+  apt: pkg={{ item }} state=build-dep update_cache=yes
+  with_items:
+    - curl
+
+- name: download curl
+  get_url: url="https://curl.haxx.se/download/curl-{{ curl.version }}.tar.bz2" dest="/tmp/curl.tar.bz2"
+
+- name: extract archive
+  action: command {{ item }} chdir=/tmp/
+  with_items:
+    - tar -xvjf curl.tar.bz2
+    - rm curl.tar.bz2
+
+- name: build curl
+  action: command {{ item }} chdir=/tmp/curl-{{ curl.version }}
+  become: true
+  with_items:
+    - ./configure --with-nghttp2=/usr/local --with-ssl
+    - make
+    - make install
+    - ldconfig
+    - rm -rf ../curl-{{ curl.version }}
