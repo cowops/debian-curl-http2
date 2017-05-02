@@ -42,6 +42,11 @@
   with_items:
     - curl
 
+- name: install latest openssl dependencies packages
+  apt: pkg={{ item }} default_release={{ debian.version }}-backports update_cache=yes
+  with_items:
+    - openssl
+
 - name: download curl
   get_url: url="https://curl.haxx.se/download/curl-{{ curl.version }}.tar.bz2" dest="/tmp/curl.tar.bz2"
 
