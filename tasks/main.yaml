@@ -29,13 +29,13 @@
   action: command {{ item}} chdir=/tmp/nghttp2
   become: true
   with_items:
+    - git checkout tags/v1.22.0
     - autoreconf -i
     - automake
     - autoconf
     - ./configure
     - make
     - make install
-    - rm -rf ../nghttp2
 
 - name: install build dependencies packages
   apt: pkg={{ item }} state=build-dep update_cache=yes
@@ -54,7 +54,6 @@
   action: command {{ item }} chdir=/tmp/
   with_items:
     - tar -xvjf curl.tar.bz2
-    - rm curl.tar.bz2
 
 - name: build curl
   action: command {{ item }} chdir=/tmp/curl-{{ curl.version }}
@@ -64,4 +63,12 @@
     - make
     - make install
     - ldconfig
-    - rm -rf ../curl-{{ curl.version }}
+
+- name: cleaning
+  action: command {{ item }} chdir=/tmp/
+  become: true
+  with_items:
+    - rm -rf nghttp2
+    - rm curl.tar.bz2
+    - rm -rf curl-{{ curl.version }}
+  ignore_errors: yes
