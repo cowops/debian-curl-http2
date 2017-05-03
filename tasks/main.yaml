@@ -1,4 +1,9 @@
 ---
+- name: check curl version
+  shell: curl -V | sed -n '1p' | awk '{print $2}'
+  register: current_curl_version
+  ignore_errors: True
+
 - name: install development packages
   apt: pkg={{ item }} state=latest update_cache=yes
   with_items:
@@ -21,9 +26,11 @@
     - cython
     - python3-dev
     - python-setuptools
+  when: curl.version not in current_curl_version.stdout
 
 - name: download nghttp2
   git: repo=https://github.com/tatsuhiro-t/nghttp2.git dest=/tmp/nghttp2
+  when: curl.version not in current_curl_version.stdout
 
 - name: build nghttp2
   action: command {{ item}} chdir=/tmp/nghttp2
@@ -36,24 +43,29 @@
     - ./configure
     - make
     - make install
+  when: curl.version not in current_curl_version.stdout
 
 - name: install build dependencies packages
   apt: pkg={{ item }} state=build-dep update_cache=yes
   with_items:
     - curl
+  when: curl.version not in current_curl_version.stdout
 
 - name: install latest openssl dependencies packages
   apt: pkg={{ item }} default_release={{ debian.version }}-backports update_cache=yes
   with_items:
     - openssl
+  when: curl.version not in current_curl_version.stdout
 
 - name: download curl
   get_url: url="https://curl.haxx.se/download/curl-{{ curl.version }}.tar.bz2" dest="/tmp/curl.tar.bz2"
+  when: curl.version not in current_curl_version.stdout
 
 - name: extract archive
   action: command {{ item }} chdir=/tmp/
   with_items:
     - tar -xvjf curl.tar.bz2
+  when: curl.version not in current_curl_version.stdout
 
 - name: build curl
   action: command {{ item }} chdir=/tmp/curl-{{ curl.version }}
@@ -63,6 +75,7 @@
     - make
     - make install
     - ldconfig
+  when: curl.version not in current_curl_version.stdout
 
 - name: cleaning
   action: command {{ item }} chdir=/tmp/
@@ -72,3 +85,4 @@
     - rm curl.tar.bz2
     - rm -rf curl-{{ curl.version }}
   ignore_errors: yes
+  when: curl.version not in current_curl_version.stdout
