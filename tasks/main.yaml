@@ -5,27 +5,31 @@
   ignore_errors: True
 
 - name: install development packages
-  apt: pkg={{ item }} state=latest update_cache=yes
-  with_items:
-    - g++
-    - make
-    - binutils
-    - autoconf
-    - automake
-    - autotools-dev
-    - libtool
-    - pkg-config
-    - zlib1g-dev
-    - libcunit1-dev
-    - libssl-dev
-    - libxml2-dev
-    - libev-dev
-    - libevent-dev
-    - libjansson-dev
-    - libjemalloc-dev
-    - cython
-    - python3-dev
-    - python-setuptools
+  apt:
+    name: {{ packages }}
+    state: latest
+    update_cache: yes
+  vars:
+    packages:
+      - g++
+      - make
+      - binutils
+      - autoconf
+      - automake
+      - autotools-dev
+      - libtool
+      - pkg-config
+      - zlib1g-dev
+      - libcunit1-dev
+      - libssl-dev
+      - libxml2-dev
+      - libev-dev
+      - libevent-dev
+      - libjansson-dev
+      - libjemalloc-dev
+      - cython
+      - python3-dev
+      - python-setuptools
   when: curl.version not in current_curl_version.stdout
 
 - name: download nghttp2
@@ -46,15 +50,23 @@
   when: curl.version not in current_curl_version.stdout
 
 - name: install build dependencies packages
-  apt: pkg={{ item }} state=build-dep update_cache=yes
-  with_items:
-    - curl
+  apt:
+    name: {{ packages }}
+    state: build-dep
+    update_cache: yes
+  vars:
+    packages:
+      - curl
   when: curl.version not in current_curl_version.stdout
 
 - name: install latest openssl dependencies packages
-  apt: pkg={{ item }} default_release={{ debian.version }}-backports update_cache=yes
-  with_items:
-    - openssl
+  apt:
+    name: {{ packages }}
+    default_release: {{ debian.version }}-backports
+    update_cache: yes
+  vars:
+    packages:
+      - openssl
   when: curl.version not in current_curl_version.stdout
 
 - name: download curl
