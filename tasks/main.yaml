@@ -6,7 +6,7 @@
 
 - name: install development packages
   apt:
-    name: {{ packages }}
+    name: "{{ packages }}"
     state: latest
     update_cache: yes
   vars:
@@ -51,7 +51,7 @@
 
 - name: install build dependencies packages
   apt:
-    name: {{ packages }}
+    name: "{{ packages }}"
     state: build-dep
     update_cache: yes
   vars:
@@ -61,7 +61,7 @@
 
 - name: install latest openssl dependencies packages
   apt:
-    name: {{ packages }}
+    name: "{{ packages }}"
     default_release: {{ debian.version }}-backports
     update_cache: yes
   vars:
